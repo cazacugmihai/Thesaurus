@@ -108,8 +108,8 @@ class ThesaurusCommand(sublime_plugin.TextCommand):
       p.stdout.close()
       alternatives = []
       # this will replace the alternatives var
-      print("alternativesString: %s" % "alternativesString")
-      #exec alternativesString
+      print("alternativesString: %s" % alternativesString)
+      exec(alternativesString)
     except Exception as err:
       alternatives = ['error', str(err)]
     if alternatives[0] == "error":
