@@ -4,6 +4,8 @@ import json
 import re
 import sys
 import os
+import urllib.request
+
 alternativesLocation = os.path.join(os.path.abspath(os.path.dirname(__file__)), "alternatives.py")
 
 class NoResultError(Exception):
@@ -83,10 +85,11 @@ class ThesaurusCommand(sublime_plugin.TextCommand):
     return r
 
   def get_json_from_api(self):
-    f = urllib.urlopen("http://thesaurus.altervista.org/thesaurus/v1?key=%s&word=%s&language=en_US&output=json" % (self.api_key(), urllib.quote(self.word)))
-    content = f.read()
-    f.close()
-    return json.loads(content)
+    api_key = self.api_key()
+    word = urllib.parse.quote(self.word)
+    url = "http://thesaurus.altervista.org/thesaurus/v1?key=%s&word=%s&language=en_US&output=json" % (api_key, word)
+    with urllib.request.urlopen(url) as response:
+      return json.loads(response.read().decode('utf-8'))
 
   def api_key(self):
     settings = sublime.load_settings('Thesaurus.sublime-settings')
@@ -105,11 +108,12 @@ class ThesaurusCommand(sublime_plugin.TextCommand):
       p.stdout.close()
       alternatives = []
       # this will replace the alternatives var
-      exec alternativesString
+      print("alternativesString: %s" % "alternativesString")
+      #exec alternativesString
     except Exception as err:
       alternatives = ['error', str(err)]
     if alternatives[0] == "error":
-      print "Enchant error: %s, defaulting to dummy method..." % alternatives[1] 
+      print("Enchant error: %s, defaulting to dummy method..." % alternatives[1] )
       # nope, an error occurred, do it the dummy way
       suffixes = ["es", "s", "ed", "er", "ly", "ing"]
       alternatives = []
